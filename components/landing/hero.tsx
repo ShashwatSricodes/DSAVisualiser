@@ -32,7 +32,7 @@ export const Hero = () => (
             </p>
           </div>
           <div className="flex flex-row gap-4">
-            <Link href="https://github.com/Manasadhikari05">
+            <Link href="https://github.com/ShashwatSricodes/DSAVisualiser">
               <Button className="gap-4" variant="outline">
                 View on GitHub <Github className="w-4 h-4" />
               </Button>

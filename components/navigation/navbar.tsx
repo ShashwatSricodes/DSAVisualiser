@@ -198,7 +198,7 @@ export const Navbar = () => {
         <Button asChild size="sm" variant="ghost" aria-label="View on GitHub">
           <Link
             aria-label="View on GitHub"
-            href="https://github.com/yourusername/ds-visualizer"
+            href="https://github.com/ShashwatSricodes/DSAVisualiser"
             target="_blank"
           >
             <Github className="size-5" />
