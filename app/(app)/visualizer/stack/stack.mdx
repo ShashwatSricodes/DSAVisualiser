@@ -1,0 +1,161 @@
+# Stack Data Structure
+
+A stack is a linear data structure that follows the Last-In-First-Out (LIFO) principle. Elements are added and removed from the same end, called the top of the stack.
+
+## Implementation
+
+Here's a basic implementation in C:
+
+```c
+#define MAX_SIZE 100
+
+typedef struct {
+    int items[MAX_SIZE];
+    int top;
+} Stack;
+
+// Initialize stack
+void initStack(Stack* stack) {
+    stack->top = -1;
+}
+
+// Check if stack is full
+int isFull(Stack* stack) {
+    return stack->top == MAX_SIZE - 1;
+}
+
+// Check if stack is empty
+int isEmpty(Stack* stack) {
+    return stack->top == -1;
+}
+
+// Push operation
+int push(Stack* stack, int value) {
+    if (isFull(stack)) {
+        printf("Stack Overflow\n");
+        return 0;
+    }
+    
+    stack->items[++stack->top] = value;
+    printf("%d pushed to stack\n", value);
+    return 1;
+}
+
+// Pop operation
+int pop(Stack* stack) {
+    if (isEmpty(stack)) {
+        printf("Stack Underflow\n");
+        return -1;
+    }
+    
+    return stack->items[stack->top--];
+}
+
+// Peek operation
+int peek(Stack* stack) {
+    if (isEmpty(stack)) {
+        printf("Stack is empty\n");
+        return -1;
+    }
+    
+    return stack->items[stack->top];
+}
+```
+
+## Usage Example
+
+```c
+int main() {
+    Stack stack;
+    initStack(&stack);
+    
+    // Push elements
+    push(&stack, 10);
+    push(&stack, 20);
+    push(&stack, 30);
+    
+    // Pop elements
+    printf("Popped: %d\n", pop(&stack));  // 30
+    printf("Popped: %d\n", pop(&stack));  // 20
+    
+    // Peek at top element
+    printf("Top element: %d\n", peek(&stack));  // 10
+    
+    return 0;
+}
+```
+
+## Operations
+
+### Push (O(1))
+- Adds an element to the top of the stack
+- If stack is full, results in stack overflow
+
+### Pop (O(1))
+- Removes and returns the top element
+- If stack is empty, results in stack underflow
+
+### Peek/Top (O(1))
+- Returns the top element without removing it
+- Does not modify the stack
+
+## Properties
+- Fixed size (in array implementation)
+- Elements are ordered by insertion time
+- Only top element is accessible
+- Follows LIFO principle
+
+## Dynamic Implementation
+
+Here's a dynamic stack implementation using linked list:
+
+```c
+typedef struct Node {
+    int data;
+    struct Node* next;
+} Node;
+
+typedef struct {
+    Node* top;
+} DynamicStack;
+
+// Initialize stack
+void initDynamicStack(DynamicStack* stack) {
+    stack->top = NULL;
+}
+
+// Push operation
+void dynamicPush(DynamicStack* stack, int value) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    if (newNode == NULL) {
+        printf("Memory allocation failed!\n");
+        return;
+    }
+    
+    newNode->data = value;
+    newNode->next = stack->top;
+    stack->top = newNode;
+    printf("%d pushed to stack\n", value);
+}
+
+// Pop operation
+int dynamicPop(DynamicStack* stack) {
+    if (stack->top == NULL) {
+        printf("Stack Underflow\n");
+        return -1;
+    }
+    
+    Node* temp = stack->top;
+    int value = temp->data;
+    stack->top = stack->top->next;
+    free(temp);
+    return value;
+}
+```
+
+## Applications
+- Function call stack in programming languages
+- Expression evaluation and syntax parsing
+- Undo operations in text editors
+- Browser history (back button)
+- Backtracking algorithms 

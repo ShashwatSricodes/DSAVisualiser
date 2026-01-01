@@ -1,0 +1,178 @@
+# Queue Data Structure
+
+A queue is a linear data structure that follows the First-In-First-Out (FIFO) principle. Elements are added at the rear (enqueue) and removed from the front (dequeue).
+
+## Implementation
+
+Here's a basic implementation in C:
+
+```c
+#define MAX_SIZE 100
+
+typedef struct {
+    int items[MAX_SIZE];
+    int front;
+    int rear;
+    int size;
+} Queue;
+
+// Initialize queue
+void initQueue(Queue* q) {
+    q->front = 0;
+    q->rear = -1;
+    q->size = 0;
+}
+
+// Check if queue is full
+int isFull(Queue* q) {
+    return q->size == MAX_SIZE;
+}
+
+// Check if queue is empty
+int isEmpty(Queue* q) {
+    return q->size == 0;
+}
+
+// Add element to queue
+int enqueue(Queue* q, int value) {
+    if (isFull(q)) {
+        printf("Queue Overflow\n");
+        return 0;
+    }
+    
+    q->rear = (q->rear + 1) % MAX_SIZE;
+    q->items[q->rear] = value;
+    q->size++;
+    printf("%d enqueued to queue\n", value);
+    return 1;
+}
+
+// Remove element from queue
+int dequeue(Queue* q) {
+    if (isEmpty(q)) {
+        printf("Queue Underflow\n");
+        return -1;
+    }
+    
+    int value = q->items[q->front];
+    q->front = (q->front + 1) % MAX_SIZE;
+    q->size--;
+    return value;
+}
+
+// Get front element
+int front(Queue* q) {
+    if (isEmpty(q)) {
+        printf("Queue is empty\n");
+        return -1;
+    }
+    return q->items[q->front];
+}
+```
+
+## Usage Example
+
+```c
+int main() {
+    Queue queue;
+    initQueue(&queue);
+    
+    // Add elements
+    enqueue(&queue, 10);
+    enqueue(&queue, 20);
+    enqueue(&queue, 30);
+    
+    // Remove elements
+    printf("Dequeued: %d\n", dequeue(&queue));  // 10
+    printf("Dequeued: %d\n", dequeue(&queue));  // 20
+    
+    // Check front element
+    printf("Front element: %d\n", front(&queue));  // 30
+    
+    return 0;
+}
+```
+
+## Circular Queue Implementation
+
+```c
+typedef struct {
+    int items[MAX_SIZE];
+    int front;
+    int rear;
+} CircularQueue;
+
+void initCircularQueue(CircularQueue* q) {
+    q->front = -1;
+    q->rear = -1;
+}
+
+int isCircularFull(CircularQueue* q) {
+    return (q->rear + 1) % MAX_SIZE == q->front;
+}
+
+int isCircularEmpty(CircularQueue* q) {
+    return q->front == -1;
+}
+
+void circularEnqueue(CircularQueue* q, int value) {
+    if (isCircularFull(q)) {
+        printf("Queue is full\n");
+        return;
+    }
+    
+    if (q->front == -1)
+        q->front = 0;
+        
+    q->rear = (q->rear + 1) % MAX_SIZE;
+    q->items[q->rear] = value;
+    printf("%d enqueued to circular queue\n", value);
+}
+
+int circularDequeue(CircularQueue* q) {
+    if (isCircularEmpty(q)) {
+        printf("Queue is empty\n");
+        return -1;
+    }
+    
+    int value = q->items[q->front];
+    
+    if (q->front == q->rear) {
+        // Last element
+        q->front = -1;
+        q->rear = -1;
+    } else {
+        q->front = (q->front + 1) % MAX_SIZE;
+    }
+    
+    return value;
+}
+```
+
+## Operations
+
+### Enqueue (O(1))
+- Adds an element to the rear of the queue
+- If queue is full, results in queue overflow
+
+### Dequeue (O(1))
+- Removes and returns the front element
+- If queue is empty, results in queue underflow
+
+### Front/Peek (O(1))
+- Returns the front element without removing it
+- Does not modify the queue
+
+## Properties
+- Fixed size (in array implementation)
+- Elements are ordered by arrival time
+- Only front element is accessible for removal
+- Follows FIFO principle
+
+## Applications
+- Process scheduling in operating systems
+- Print job scheduling
+- Breadth-first search in graphs
+- Request handling in web servers
+- Message queues in system design
+- Buffering in data streams

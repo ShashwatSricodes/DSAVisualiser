@@ -1,0 +1,102 @@
+# Binary Tree Traversal
+
+Binary trees can be traversed in different ways, with each traversal method visiting nodes in a specific order.
+
+## Pre-Order Traversal
+
+In pre-order traversal we visit the node then go to the `left subtree` then `right subtree`.
+
+```c:preorder.c
+/*
+ * Time: O(n)
+ * Space: O(1)
+ */
+
+typedef struct Node {
+    int value;
+    struct Node* left;
+    struct Node* right;
+} Node;
+
+// Method implementation
+void preOrderTraversal(Node* root) {
+    if (root == NULL)
+        return;
+        
+    printf("%d ", root->value);        // Visit node
+    preOrderTraversal(root->left);     // Left subtree
+    preOrderTraversal(root->right);    // Right subtree
+}
+```
+
+## In-Order Traversal
+
+In in-order traversal, we first visit the left node, then parent, then right node.
+
+```c:inorder.c
+/*
+ * Time: O(n) 
+ * Space: O(1)
+ */
+
+void inOrderTraversal(Node* root) {
+    if (root == NULL)
+        return;
+        
+    inOrderTraversal(root->left);      // Left subtree
+    printf("%d ", root->value);        // Visit node
+    inOrderTraversal(root->right);     // Right subtree
+}
+```
+
+## Post-Order Traversal
+
+Post-order traversal visits the left subtree, then right subtree, then the node.
+
+```c:postorder.c
+/*
+ * Time: O(n)
+ * Space: O(1)
+ */
+
+void postOrderTraversal(Node* root) {
+    if (root == NULL)
+        return;
+        
+    postOrderTraversal(root->left);    // Left subtree
+    postOrderTraversal(root->right);   // Right subtree
+    printf("%d ", root->value);        // Visit node
+}
+```
+
+## Traversal Applications
+
+| Traversal | Use Cases |
+|-----------|-----------|
+| Pre-order | Creating a copy of the tree, Serialization |
+| In-order  | Gets nodes in non-decreasing order in BST |
+| Post-order| Deleting nodes, Computing directory size |
+
+## Key Points
+
+- **Pre-order**: Root → Left → Right
+  - Used for creating prefix expression trees
+  - Helpful in serialization
+
+- **In-order**: Left → Root → Right
+  - Gives sorted sequence for BST
+  - Most natural way to "read" a tree
+
+- **Post-order**: Left → Right → Root
+  - Used in expression evaluation
+  - Bottom-up tree processing
+
+## Implementation Notes
+
+- Uses recursive approach for simplicity
+- Each node contains:
+  - `value`: The data stored in the node
+  - `left`: Pointer to left child
+  - `right`: Pointer to right child
+- NULL checks prevent segmentation faults
+- Can be implemented iteratively using a stack

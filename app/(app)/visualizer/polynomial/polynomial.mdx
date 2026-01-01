@@ -1,0 +1,135 @@
+# Polynomial Multiplication
+
+Polynomial multiplication using linked lists is an efficient way to handle algebraic operations on polynomials of any degree.
+
+## Implementation
+
+Here's how polynomials are represented and multiplied using linked lists:
+
+```c
+typedef struct Term {
+    int coefficient;
+    int exponent;
+    struct Term* next;
+} Term;
+
+typedef struct {
+    Term* head;
+} Polynomial;
+
+// Create new term
+Term* createTerm(int coeff, int exp) {
+    Term* term = (Term*)malloc(sizeof(Term));
+    term->coefficient = coeff;
+    term->exponent = exp;
+    term->next = NULL;
+    return term;
+}
+
+// Insert term into polynomial
+void insertTerm(Polynomial* poly, int coeff, int exp) {
+    Term* newTerm = createTerm(coeff, exp);
+    
+    if (!poly->head || exp > poly->head->exponent) {
+        newTerm->next = poly->head;
+        poly->head = newTerm;
+        return;
+    }
+    
+    Term* current = poly->head;
+    while (current->next && current->next->exponent > exp) {
+        current = current->next;
+    }
+    
+    newTerm->next = current->next;
+    current->next = newTerm;
+}
+
+// Multiply two polynomials
+Polynomial* multiply(Polynomial* p1, Polynomial* p2) {
+    Polynomial* result = (Polynomial*)malloc(sizeof(Polynomial));
+    result->head = NULL;
+    
+    Term* term1 = p1->head;
+    while (term1) {
+        Term* term2 = p2->head;
+        while (term2) {
+            int coeff = term1->coefficient * term2->coefficient;
+            int exp = term1->exponent + term2->exponent;
+            insertTerm(result, coeff, exp);
+            term2 = term2->next;
+        }
+        term1 = term1->next;
+    }
+    
+    return result;
+}
+```
+
+## Algorithm Steps
+
+1. **Representation**
+   - Each term has coefficient, exponent, and next pointer
+   - Terms are stored in descending order of exponents
+   - Zero coefficients are typically omitted
+
+2. **Multiplication Process**
+   - Multiply each term of first polynomial with each term of second
+   - Add exponents and multiply coefficients
+   - Combine like terms (same exponents)
+   - Maintain descending order of exponents
+
+3. **Time Complexity**
+   - For polynomials of length m and n: O(m*n)
+   - Additional space complexity: O(m*n)
+
+## Example
+
+For polynomials:
+- P1(x) = 3x² + 2x + 1
+- P2(x) = 2x + 1
+
+The multiplication P1(x) * P2(x) results in:
+- (3x²)(2x) = 6x³
+- (3x²)(1) = 3x²
+- (2x)(2x) = 4x²
+- (2x)(1) = 2x
+- (1)(2x) = 2x
+- (1)(1) = 1
+
+Combining like terms:
+- Result = 6x³ + 7x² + 4x + 1
+
+## Applications
+
+1. **Algebraic Computations**
+   - Symbolic mathematics
+   - Computer algebra systems
+   - Mathematical modeling
+
+2. **Signal Processing**
+   - Convolution operations
+   - Digital filters
+   - Frequency analysis
+
+3. **Numerical Methods**
+   - Interpolation
+   - Curve fitting
+   - Approximation algorithms
+
+## Advantages of Linked List Implementation
+
+1. **Dynamic Size**
+   - No fixed size limitation
+   - Efficient memory usage
+   - Easy to add/remove terms
+
+2. **Ordered Storage**
+   - Terms maintained in descending order
+   - Efficient combination of like terms
+   - Easy to print in standard form
+
+3. **Sparse Polynomial Handling**
+   - Only non-zero terms stored
+   - Efficient for sparse polynomials
+   - Reduced memory usage 

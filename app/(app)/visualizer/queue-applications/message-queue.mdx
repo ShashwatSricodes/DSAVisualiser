@@ -1,0 +1,180 @@
+# Message Queue System
+
+A message queue is a form of asynchronous service-to-service communication used in distributed systems and microservices architectures.
+
+## Implementation
+
+Here's a basic message queue implementation in C:
+
+```c
+#define MAX_QUEUE_SIZE 100
+#define MAX_MSG_SIZE 256
+
+typedef struct {
+    char content[MAX_MSG_SIZE];
+    int priority;
+    int timestamp;
+} Message;
+
+typedef struct {
+    Message messages[MAX_QUEUE_SIZE];
+    int front;
+    int rear;
+    int size;
+    pthread_mutex_t mutex;
+    pthread_cond_t not_empty;
+    pthread_cond_t not_full;
+} MessageQueue;
+
+// Initialize message queue
+void initMessageQueue(MessageQueue* mq) {
+    mq->front = 0;
+    mq->rear = -1;
+    mq->size = 0;
+    pthread_mutex_init(&mq->mutex, NULL);
+    pthread_cond_init(&mq->not_empty, NULL);
+    pthread_cond_init(&mq->not_full, NULL);
+}
+
+// Producer: Send message
+int sendMessage(MessageQueue* mq, const char* content, int priority) {
+    pthread_mutex_lock(&mq->mutex);
+    
+    // Wait if queue is full
+    while (mq->size == MAX_QUEUE_SIZE) {
+        pthread_cond_wait(&mq->not_full, &mq->mutex);
+    }
+    
+    // Add message to queue
+    mq->rear = (mq->rear + 1) % MAX_QUEUE_SIZE;
+    strncpy(mq->messages[mq->rear].content, content, MAX_MSG_SIZE - 1);
+    mq->messages[mq->rear].priority = priority;
+    mq->messages[mq->rear].timestamp = time(NULL);
+    mq->size++;
+    
+    // Signal that queue is not empty
+    pthread_cond_signal(&mq->not_empty);
+    pthread_mutex_unlock(&mq->mutex);
+    
+    return 1;
+}
+
+// Consumer: Receive message
+int receiveMessage(MessageQueue* mq, Message* msg) {
+    pthread_mutex_lock(&mq->mutex);
+    
+    // Wait if queue is empty
+    while (mq->size == 0) {
+        pthread_cond_wait(&mq->not_empty, &mq->mutex);
+    }
+    
+    // Get message from queue
+    *msg = mq->messages[mq->front];
+    mq->front = (mq->front + 1) % MAX_QUEUE_SIZE;
+    mq->size--;
+    
+    // Signal that queue is not full
+    pthread_cond_signal(&mq->not_full);
+    pthread_mutex_unlock(&mq->mutex);
+    
+    return 1;
+}
+```
+
+## Producer-Consumer Example
+
+```c
+void* producer(void* arg) {
+    MessageQueue* mq = (MessageQueue*)arg;
+    int count = 0;
+    
+    while (1) {
+        char message[MAX_MSG_SIZE];
+        snprintf(message, MAX_MSG_SIZE, "Message %d", count++);
+        
+        if (sendMessage(mq, message, 1)) {
+            printf("Produced: %s\n", message);
+        }
+        
+        // Simulate processing time
+        sleep(1);
+    }
+    
+    return NULL;
+}
+
+void* consumer(void* arg) {
+    MessageQueue* mq = (MessageQueue*)arg;
+    Message msg;
+    
+    while (1) {
+        if (receiveMessage(mq, &msg)) {
+            printf("Consumed: %s (Priority: %d)\n", 
+                   msg.content, msg.priority);
+        }
+        
+        // Simulate processing time
+        sleep(2);
+    }
+    
+    return NULL;
+}
+
+int main() {
+    MessageQueue mq;
+    initMessageQueue(&mq);
+    
+    pthread_t producer_thread, consumer_thread;
+    
+    pthread_create(&producer_thread, NULL, producer, &mq);
+    pthread_create(&consumer_thread, NULL, consumer, &mq);
+    
+    pthread_join(producer_thread, NULL);
+    pthread_join(consumer_thread, NULL);
+    
+    return 0;
+}
+```
+
+## Components
+
+### Producers
+- Create and send messages to the queue
+- Don't wait for messages to be processed
+- Can continue their tasks independently
+
+### Queue
+- Stores messages in FIFO order
+- Acts as a buffer between producers and consumers
+- Ensures message delivery and persistence
+
+### Consumers
+- Process messages from the queue
+- Can handle messages at their own pace
+- Multiple consumers can process messages concurrently
+
+## Benefits
+
+1. **Decoupling**
+   - Producers and consumers operate independently
+   - Services can be scaled, updated, or modified separately
+
+2. **Scalability**
+   - Easy to add more producers or consumers
+   - Handles varying workloads efficiently
+
+3. **Reliability**
+   - Messages aren't lost even if consumers fail
+   - Guaranteed message delivery
+   - Built-in retry mechanisms
+
+4. **Load Leveling**
+   - Handles traffic spikes gracefully
+   - Prevents service overload
+
+## Real-World Applications
+- Email processing systems
+- Order processing in e-commerce
+- Log aggregation services
+- Task scheduling systems
+- Notification services 

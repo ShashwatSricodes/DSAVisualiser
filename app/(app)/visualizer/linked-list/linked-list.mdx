@@ -1,0 +1,217 @@
+# Linked List Data Structures
+
+A linked list is a linear data structure where elements are stored in nodes, and each node points to the next node in the sequence.
+
+## Basic Node Structure
+
+```c
+// Basic node structure
+typedef struct Node {
+    int data;
+    struct Node* next;
+} Node;
+```
+
+## Singly Linked List Implementation
+
+```c
+// Create new node
+Node* createNode(int data) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->data = data;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Insert at beginning
+Node* insertFront(Node* head, int data) {
+    Node* newNode = createNode(data);
+    newNode->next = head;
+    return newNode;
+}
+
+// Insert at end
+Node* insertBack(Node* head, int data) {
+    Node* newNode = createNode(data);
+    
+    if (head == NULL)
+        return newNode;
+        
+    Node* current = head;
+    while (current->next != NULL)
+        current = current->next;
+        
+    current->next = newNode;
+    return head;
+}
+
+// Delete from front
+Node* deleteFront(Node* head) {
+    if (head == NULL)
+        return NULL;
+        
+    Node* temp = head->next;
+    free(head);
+    return temp;
+}
+
+// Print list
+void printList(Node* head) {
+    Node* current = head;
+    while (current != NULL) {
+        printf("%d -> ", current->data);
+        current = current->next;
+    }
+    printf("NULL\n");
+}
+```
+
+## Doubly Linked List Implementation
+
+```c
+typedef struct DNode {
+    int data;
+    struct DNode* next;
+    struct DNode* prev;
+} DNode;
+
+// Create new node
+DNode* createDNode(int data) {
+    DNode* newNode = (DNode*)malloc(sizeof(DNode));
+    newNode->data = data;
+    newNode->next = NULL;
+    newNode->prev = NULL;
+    return newNode;
+}
+
+// Insert at beginning
+DNode* insertFrontDLL(DNode* head, int data) {
+    DNode* newNode = createDNode(data);
+    
+    if (head != NULL) {
+        newNode->next = head;
+        head->prev = newNode;
+    }
+    
+    return newNode;
+}
+
+// Insert at end
+DNode* insertBackDLL(DNode* head, int data) {
+    DNode* newNode = createDNode(data);
+    
+    if (head == NULL)
+        return newNode;
+        
+    DNode* current = head;
+    while (current->next != NULL)
+        current = current->next;
+        
+    current->next = newNode;
+    newNode->prev = current;
+    
+    return head;
+}
+```
+
+## Circular Singly Linked List Implementation
+
+```c
+// Insert in circular list
+Node* insertCSLL(Node* head, int data) {
+    Node* newNode = createNode(data);
+    
+    if (head == NULL) {
+        newNode->next = newNode;  // Point to itself
+        return newNode;
+    }
+    
+    // Insert at end
+    newNode->next = head->next;
+    head->next = newNode;
+    
+    return head;
+}
+
+// Delete from circular list
+Node* deleteCSLL(Node* head) {
+    if (head == NULL || head->next == head) {
+        free(head);
+        return NULL;
+    }
+    
+    Node* temp = head->next;
+    head->next = temp->next;
+    free(temp);
+    return head;
+}
+```
+
+## Circular Doubly Linked List Implementation
+
+```c
+// Insert in circular doubly list
+DNode* insertCDLL(DNode* head, int data) {
+    DNode* newNode = createDNode(data);
+    
+    if (head == NULL) {
+        newNode->next = newNode;
+        newNode->prev = newNode;
+        return newNode;
+    }
+    
+    // Insert at end
+    newNode->next = head;
+    newNode->prev = head->prev;
+    head->prev->next = newNode;
+    head->prev = newNode;
+    
+    return head;
+}
+
+// Delete from circular doubly list
+DNode* deleteCDLL(DNode* head) {
+    if (head == NULL || head->next == head) {
+        free(head);
+        return NULL;
+    }
+    
+    DNode* temp = head->next;
+    head->next = temp->next;
+    temp->next->prev = head;
+    free(temp);
+    return head;
+}
+```
+
+## Common Operations
+
+### Traversal
+```c
+// Forward traversal
+void traverse(Node* head) {
+    Node* current = head;
+    do {
+        printf("%d -> ", current->data);
+        current = current->next;
+    } while (current != head && current != NULL);
+    printf("NULL\n");
+}
+
+// Reverse traversal (DLL/CDLL)
+void reverseTraverse(DNode* tail) {
+    DNode* current = tail;
+    do {
+        printf("%d -> ", current->data);
+        current = current->prev;
+    } while (current != tail && current != NULL);
+    printf("NULL\n");
+}
+```
+
+## Applications
+- Implementation of stacks and queues
+- Music playlist (circular)
+- Undo/Redo operations (doubly)
+- Memory allocation
+- Hash tables (chaining)

@@ -1,0 +1,178 @@
+# Binary Heap
+
+A binary heap is a complete binary tree that satisfies the heap property. In a max heap, for any given node I, the value of I is greater than or equal to the values of its children. In a min heap, the value of I is less than or equal to the values of its children.
+
+## Implementation
+
+Here's a complete implementation of both min and max heaps in C:
+
+```c
+#define MAX_SIZE 100
+
+typedef struct {
+    int arr[MAX_SIZE];
+    int size;
+    int isMinHeap;  // 1 for min heap, 0 for max heap
+} Heap;
+
+// Initialize heap
+void initHeap(Heap* h, int isMinHeap) {
+    h->size = 0;
+    h->isMinHeap = isMinHeap;
+}
+
+// Get parent index
+int parent(int i) {
+    return (i - 1) / 2;
+}
+
+// Get left child index
+int leftChild(int i) {
+    return 2 * i + 1;
+}
+
+// Get right child index
+int rightChild(int i) {
+    return 2 * i + 2;
+}
+
+// Swap two elements
+void swap(int* a, int* b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+// Compare based on heap type
+int compareHeap(Heap* h, int a, int b) {
+    if (h->isMinHeap)
+        return a > b;  // Min heap
+    return a < b;      // Max heap
+}
+
+// Heapify up (used after insertion)
+void heapifyUp(Heap* h, int i) {
+    while (i > 0 && compareHeap(h, h->arr[parent(i)], h->arr[i])) {
+        swap(&h->arr[i], &h->arr[parent(i)]);
+        i = parent(i);
+    }
+}
+
+// Heapify down (used after deletion)
+void heapifyDown(Heap* h, int i) {
+    int minMax = i;
+    int left = leftChild(i);
+    int right = rightChild(i);
+    
+    if (left < h->size && compareHeap(h, h->arr[minMax], h->arr[left]))
+        minMax = left;
+        
+    if (right < h->size && compareHeap(h, h->arr[minMax], h->arr[right]))
+        minMax = right;
+        
+    if (minMax != i) {
+        swap(&h->arr[i], &h->arr[minMax]);
+        heapifyDown(h, minMax);
+    }
+}
+
+// Insert element
+void insert(Heap* h, int value) {
+    if (h->size >= MAX_SIZE) {
+        printf("Heap is full\n");
+        return;
+    }
+    
+    h->arr[h->size] = value;
+    heapifyUp(h, h->size);
+    h->size++;
+}
+
+// Extract root element
+int extractRoot(Heap* h) {
+    if (h->size <= 0) {
+        printf("Heap is empty\n");
+        return -1;
+    }
+    
+    int root = h->arr[0];
+    h->arr[0] = h->arr[h->size - 1];
+    h->size--;
+    heapifyDown(h, 0);
+    
+    return root;
+}
+
+// Peek at root element
+int peekRoot(Heap* h) {
+    if (h->size <= 0) {
+        printf("Heap is empty\n");
+        return -1;
+    }
+    return h->arr[0];
+}
+```
+
+## Usage Example
+
+```c
+int main() {
+    // Create and use a min heap
+    Heap minHeap;
+    initHeap(&minHeap, 1);
+    
+    insert(&minHeap, 3);
+    insert(&minHeap, 2);
+    insert(&minHeap, 1);
+    insert(&minHeap, 15);
+    insert(&minHeap, 5);
+    
+    printf("Min element: %d\n", extractRoot(&minHeap));  // 1
+    printf("Next min: %d\n", extractRoot(&minHeap));     // 2
+    
+    // Create and use a max heap
+    Heap maxHeap;
+    initHeap(&maxHeap, 0);
+    
+    insert(&maxHeap, 3);
+    insert(&maxHeap, 2);
+    insert(&maxHeap, 1);
+    insert(&maxHeap, 15);
+    insert(&maxHeap, 5);
+    
+    printf("Max element: %d\n", extractRoot(&maxHeap));  // 15
+    printf("Next max: %d\n", extractRoot(&maxHeap));     // 5
+    
+    return 0;
+}
+```
+
+## Properties
+
+- Complete Binary Tree: All levels are filled except possibly the last level
+- Heap Property: Parent-child relationship follows either max-heap or min-heap property
+- Array Representation: Can be efficiently stored in an array where:
+  - For node at index i:
+  - Left child: 2i + 1
+  - Right child: 2i + 2
+  - Parent: floor((i-1)/2)
+
+## Operations
+
+### Insertion (O(log n))
+1. Add element at the next available position
+2. Compare with parent and swap if heap property is violated
+3. Continue until heap property is satisfied (heapify-up)
+
+### Deletion (O(log n))
+1. Remove root element
+2. Replace with last element
+3. Compare with children and swap with larger (max-heap) or smaller (min-heap) child
+4. Continue until heap property is satisfied (heapify-down)
+
+## Applications
+- Priority Queues
+- Heap Sort
+- Graph Algorithms (Dijkstra's, Prim's)
+- Memory Management
+- Event-driven Simulation

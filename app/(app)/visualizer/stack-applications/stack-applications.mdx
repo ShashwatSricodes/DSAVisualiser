@@ -1,0 +1,153 @@
+# Stack Applications
+
+## Infix to Postfix Conversion
+
+Converting infix expressions (e.g., `3 + 4 * 2`) to postfix notation (e.g., `3 4 2 * +`) using a stack.
+
+## Implementation
+
+Here's the implementation in C:
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX_SIZE 100
+
+// Stack implementation
+typedef struct {
+    char items[MAX_SIZE];
+    int top;
+} Stack;
+
+void initStack(Stack* s) {
+    s->top = -1;
+}
+
+void push(Stack* s, char c) {
+    s->items[++s->top] = c;
+}
+
+char pop(Stack* s) {
+    return s->items[s->top--];
+}
+
+char peek(Stack* s) {
+    return s->items[s->top];
+}
+
+int isEmpty(Stack* s) {
+    return s->top == -1;
+}
+
+// Get operator precedence
+int precedence(char operator) {
+    switch (operator) {
+        case '+':
+        case '-':
+            return 1;
+        case '*':
+        case '/':
+            return 2;
+        case '^':
+            return 3;
+    }
+    return -1;
+}
+
+// Check if character is operator
+int isOperator(char ch) {
+    return (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '^');
+}
+
+// Convert infix to postfix
+void infixToPostfix(char* infix, char* postfix) {
+    Stack stack;
+    initStack(&stack);
+    
+    int i, j = 0;
+    char ch;
+    
+    for (i = 0; infix[i] != '\0'; i++) {
+        ch = infix[i];
+        
+        // If operand, add to output
+        if (isalnum(ch)) {
+            postfix[j++] = ch;
+        }
+        // If '(', push to stack
+        else if (ch == '(') {
+            push(&stack, ch);
+        }
+        // If ')', pop until '(' is found
+        else if (ch == ')') {
+            while (!isEmpty(&stack) && peek(&stack) != '(') {
+                postfix[j++] = pop(&stack);
+            }
+            pop(&stack); // Remove '('
+        }
+        // If operator
+        else if (isOperator(ch)) {
+            while (!isEmpty(&stack) && peek(&stack) != '(' && 
+                   precedence(ch) <= precedence(peek(&stack))) {
+                postfix[j++] = pop(&stack);
+            }
+            push(&stack, ch);
+        }
+    }
+    
+    // Pop remaining operators
+    while (!isEmpty(&stack)) {
+        postfix[j++] = pop(&stack);
+    }
+    
+    postfix[j] = '\0';
+}
+```
+
+## Usage Example
+
+```c
+int main() {
+    char infix[] = "a+b*(c^d-e)^(f+g*h)-i";
+    char postfix[MAX_SIZE];
+    
+    infixToPostfix(infix, postfix);
+    printf("Infix: %s\n", infix);
+    printf("Postfix: %s\n", postfix);
+    
+    return 0;
+}
+```
+
+## Algorithm Steps
+
+1. Scan the infix expression from left to right
+2. If the scanned character is:
+   - An operand (letter/number): Add it to output
+   - A left parenthesis '(': Push it to stack
+   - A right parenthesis ')': Pop stack and add to output until '(' is found
+   - An operator: Pop stack and add to output until a lower precedence operator is found
+
+### Operator Precedence
+1. Parentheses: ( )
+2. Exponentiation: ^
+3. Multiplication and Division: * /
+4. Addition and Subtraction: + -
+
+## Example Conversions
+
+| Infix Expression | Postfix Expression |
+|-----------------|-------------------|
+| `a + b` | `a b +` |
+| `a + b * c` | `a b c * +` |
+| `(a + b) * c` | `a b + c *` |
+| `a + b * c / d` | `a b c * d / +` |
+
+## Applications
+- Expression evaluation in compilers
+- Calculator applications
+- Syntax parsing
+- Mathematical expression analysis
